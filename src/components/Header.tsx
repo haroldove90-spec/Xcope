@@ -1,27 +1,35 @@
 import React from 'react';
 import { PWAInstallButton } from './pwa/PWAInstallButton';
-import { ShieldCheck, Bell } from 'lucide-react';
+import { ShieldCheck, Bell, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   unreadAlertsCount?: number;
   onOpenAlerts?: () => void;
+  onGoHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   unreadAlertsCount = 0,
   onOpenAlerts,
+  onGoHome,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs w-full">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 h-14 sm:h-18 flex items-center justify-between gap-2">
-        {/* Left: System Logo unencapsulated full-size */}
+        {/* Left: System Logo unencapsulated full-size, clicking returns to Home */}
         <div className="flex items-center gap-2 shrink min-w-0">
-          <img
-            src="https://appdesignproyectos.com/xcopelogo.png"
-            alt="Xcope"
-            className="h-7 sm:h-10 md:h-11 w-auto max-w-[125px] xs:max-w-[150px] sm:max-w-[220px] object-contain block select-none"
-            referrerPolicy="no-referrer"
-          />
+          <button
+            onClick={onGoHome}
+            title="Volver al inicio"
+            className="flex items-center cursor-pointer p-0 bg-transparent border-0 text-left shrink-0"
+          >
+            <img
+              src="https://appdesignproyectos.com/xcopelogo.png"
+              alt="Xcope"
+              className="h-7 sm:h-10 md:h-11 w-auto max-w-[125px] xs:max-w-[150px] sm:max-w-[220px] object-contain block select-none"
+              referrerPolicy="no-referrer"
+            />
+          </button>
           <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-50/80 border border-blue-100 text-[10px] font-bold text-[#0A2957]">
             <span>Scope QX</span>
             <span className="text-[#FFCC01]">/</span>
@@ -29,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right actions: Rol Admin, Alertas, Botón Instala Xcope */}
+        {/* Right actions: Rol Admin, Alertas, Botón Instala Xcope, Salir al Home */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Alertas Operativas */}
           {unreadAlertsCount > 0 && (
@@ -53,6 +61,17 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Botón de instalación rápida de la aplicación */}
           <PWAInstallButton />
+
+          {/* Salir al Home */}
+          {onGoHome && (
+            <button
+              onClick={onGoHome}
+              title="Cerrar sesión / Volver al Inicio"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer shrink-0"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </header>

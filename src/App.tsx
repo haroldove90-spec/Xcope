@@ -21,13 +21,18 @@ import { InventoryModule } from './components/inventory/InventoryModule';
 import { ClientsModule } from './components/clients/ClientsModule';
 import { PurchasesModule } from './components/purchases/PurchasesModule';
 import { SurgeriesModule } from './components/surgeries/SurgeriesModule';
+import { HomeScreen } from './components/HomeScreen';
 import { QuoteGeneratorModal } from './components/quotes/QuoteGeneratorModal';
 import { QuoteViewerModal } from './components/quotes/QuoteViewerModal';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
 import { ShieldAlert, X, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  // Monorol: Exclusively Admin role directly loaded on boot
+  // Monorol: Home screen with unencapsulated logo and Admin role access button
+  const [isInWorkspace, setIsInWorkspace] = useState<boolean>(() =>
+    getStoredData('is_in_workspace', false)
+  );
+
   // Default module: 'metrics' (Métricas y Balance as the main dashboard on open)
   const [activeTab, setActiveTab] = useState<ActiveTab>('metrics');
 
@@ -94,6 +99,10 @@ export default function App() {
   useEffect(() => {
     setStoredData('receivables', receivables);
   }, [receivables]);
+
+  useEffect(() => {
+    setStoredData('is_in_workspace', isInWorkspace);
+  }, [isInWorkspace]);
 
   useEffect(() => {
     setStoredData('surgeries', surgeries);
@@ -240,6 +249,17 @@ export default function App() {
     setSurgeries((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
   };
 
+  // If not in workspace, render the Home screen:
+  // "Activa un home con el logo del sistema y un icono de acceso al rol admin. Sin header, solo el logo, sin encapsular y el icono y nomnre del rol: Admin."
+  if (!isInWorkspace) {
+    return (
+      <div className="min-h-screen bg-slate-50 w-full max-w-full overflow-x-hidden">
+        <OfflineIndicator />
+        <HomeScreen onEnterAdmin={() => setIsInWorkspace(true)} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-[#0B1320] w-full max-w-full overflow-x-hidden">
       {/* Offline Mode Indicator */}
@@ -249,6 +269,7 @@ export default function App() {
       <Header
         unreadAlertsCount={totalAlertsCount}
         onOpenAlerts={() => setShowAlertsModal(true)}
+        onGoHome={() => setIsInWorkspace(false)}
       />
 
       {/* Main Workspace Canvas: Sidebar in desktop fullscreen + Main Viewport */}
