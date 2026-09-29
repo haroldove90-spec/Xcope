@@ -109,15 +109,15 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
   return (
     <div className="space-y-5 pb-20 lg:pb-12">
       {/* Title Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
               Módulo 2
             </span>
             <span className="text-xs text-slate-500 font-mono">Scope QX Ventas</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0B1320] mt-1">
+          <h1 className="text-lg sm:text-2xl font-bold text-[#0B1320] mt-1">
             Clientes y Cotizaciones Rápidas
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -125,21 +125,21 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 w-full sm:w-auto shrink-0">
           <button
             onClick={() => onOpenNewQuote()}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#FFCC01] text-[#0A2957] hover:bg-[#ebd500] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-[#FFCC01] text-[#0A2957] hover:bg-[#ebd500] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <FileText className="w-4 h-4 text-[#0A2957]" />
-            <span>+ Cotizar en PDF</span>
+            <span>Cotizar en PDF</span>
           </button>
 
           <button
             onClick={() => setShowAddClientModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4 text-[#FFCC01]" />
-            <span>+ Nuevo Cirujano</span>
+            <span>Nuevo Cirujano</span>
           </button>
         </div>
       </div>

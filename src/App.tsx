@@ -241,7 +241,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col text-[#0B1320]">
+    <div className="min-h-screen bg-slate-50 flex flex-col text-[#0B1320] w-full max-w-full overflow-x-hidden">
       {/* Offline Mode Indicator */}
       <OfflineIndicator />
 
@@ -252,7 +252,7 @@ export default function App() {
       />
 
       {/* Main Workspace Canvas: Sidebar in desktop fullscreen + Main Viewport */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
+      <div className="flex-1 flex max-w-7xl w-full mx-auto min-w-0">
         {/* Desktop Sidebar (fullscreen access to all 5 modules) */}
         <Sidebar
           activeTab={activeTab}
@@ -269,7 +269,7 @@ export default function App() {
         />
 
         {/* Main Content Viewport */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 min-w-0">
+        <main className="flex-1 p-2.5 xs:p-3.5 sm:p-6 lg:p-8 min-w-0 max-w-full overflow-x-hidden">
           {/* Módulo 5: Métricas y Balance (Dashboard Principal) */}
           {activeTab === 'metrics' && (
             <ExecutiveDashboard

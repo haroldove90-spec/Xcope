@@ -7,12 +7,12 @@ export const PWAInstallButton: React.FC = () => {
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [showGenericGuide, setShowGenericGuide] = useState(false);
 
-  // If already installed in standalone mode, show clean installed state or hide
+  // If already installed in standalone mode
   if (isInstalled) {
     return (
-      <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-800 bg-emerald-50 rounded-lg border border-emerald-200">
-        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-        <span>Instalada</span>
+      <div className="flex items-center gap-1 px-2 sm:px-2.5 py-1 sm:py-1.5 text-[11px] sm:text-xs font-semibold text-emerald-800 bg-emerald-50 rounded-xl border border-emerald-200 shrink-0">
+        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+        <span className="hidden xs:inline">Instalada</span>
       </div>
     );
   }
@@ -32,16 +32,17 @@ export const PWAInstallButton: React.FC = () => {
       <button
         onClick={handleInstallClick}
         title="Instalar Xcope en tu pantalla de inicio"
-        className="flex items-center gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold bg-[#FFCC01] text-[#0A2957] rounded-xl hover:bg-[#ebd500] active:scale-95 transition-all shadow-sm cursor-pointer whitespace-nowrap"
+        className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold bg-[#FFCC01] text-[#0A2957] rounded-xl hover:bg-[#ebd500] active:scale-95 transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
       >
-        <Download className="w-4 h-4 text-[#0A2957]" />
-        <span>Instala Xcope</span>
+        <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0A2957] shrink-0" />
+        <span className="hidden xs:inline">Instala Xcope</span>
+        <span className="xs:hidden">Instalar</span>
       </button>
 
       {/* iOS Safari Guide Modal */}
       {showIOSGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-6 shadow-2xl border border-slate-200 text-[#0B1320]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-5 h-5 text-[#0A2957]" />
@@ -49,13 +50,13 @@ export const PWAInstallButton: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowIOSGuide(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100 transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mt-4 space-y-3 text-sm text-slate-700">
+            <div className="mt-4 space-y-3 text-xs sm:text-sm text-slate-700">
               <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
                 <div className="w-6 h-6 rounded-full bg-[#0A2957] text-[#FFCC01] flex items-center justify-center font-bold text-xs shrink-0">1</div>
                 <div>
@@ -81,7 +82,7 @@ export const PWAInstallButton: React.FC = () => {
                 <div>
                   <p className="font-semibold text-black">Pulsa 'Agregar'</p>
                   <p className="text-xs text-slate-600">
-                    Xcope se abrirá como aplicación nativa rápida con acceso directo sin barras del navegador.
+                    Xcope se abrirá como app nativa rápida con acceso directo sin barras del navegador.
                   </p>
                 </div>
               </div>
@@ -89,7 +90,7 @@ export const PWAInstallButton: React.FC = () => {
 
             <button
               onClick={() => setShowIOSGuide(false)}
-              className="mt-5 w-full rounded-xl bg-[#0A2957] py-2.5 text-sm font-bold text-white hover:bg-[#071c3c] transition-colors"
+              className="mt-5 w-full rounded-xl bg-[#0A2957] py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#071c3c] transition-colors cursor-pointer"
             >
               Entendido
             </button>
@@ -97,10 +98,10 @@ export const PWAInstallButton: React.FC = () => {
         </div>
       )}
 
-      {/* Android / Desktop Manual Guide Modal (when beforeinstallprompt hasn't fired yet or Chrome menu is needed) */}
+      {/* Android / Desktop Manual Guide Modal */}
       {showGenericGuide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320]">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 sm:p-6 shadow-2xl border border-slate-200 text-[#0B1320]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Download className="w-5 h-5 text-[#0A2957]" />
@@ -108,13 +109,13 @@ export const PWAInstallButton: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowGenericGuide(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100 transition-colors"
+                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mt-4 space-y-3 text-sm text-slate-700">
+            <div className="mt-4 space-y-3 text-xs sm:text-sm text-slate-700">
               <p className="text-xs text-slate-600">
                 Puedes instalar Xcope en Android, Windows o Mac directamente desde tu navegador Chrome, Edge o Safari:
               </p>
@@ -124,7 +125,7 @@ export const PWAInstallButton: React.FC = () => {
                 <div>
                   <p className="font-semibold text-black">Menú del Navegador</p>
                   <p className="text-xs text-slate-600">
-                    Pulsa los 3 puntos (⋮) en la esquina superior derecha del navegador.
+                    Pulsa los 3 puntos (⋮) en la esquina superior del navegador.
                   </p>
                 </div>
               </div>
@@ -134,7 +135,7 @@ export const PWAInstallButton: React.FC = () => {
                 <div>
                   <p className="font-semibold text-black">Instalar Aplicación</p>
                   <p className="text-xs text-slate-600">
-                    Elige <strong>"Instalar Xcope"</strong> o <strong>"Agregar a la pantalla principal"</strong>.
+                    Elige <strong>"Instalar Xcope"</strong> o <strong>"Agregar a pantalla principal"</strong>.
                   </p>
                 </div>
               </div>
@@ -142,7 +143,7 @@ export const PWAInstallButton: React.FC = () => {
 
             <button
               onClick={() => setShowGenericGuide(false)}
-              className="mt-5 w-full rounded-xl bg-[#0A2957] py-2.5 text-sm font-bold text-white hover:bg-[#071c3c] transition-colors"
+              className="mt-5 w-full rounded-xl bg-[#0A2957] py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-[#071c3c] transition-colors cursor-pointer"
             >
               Listo
             </button>

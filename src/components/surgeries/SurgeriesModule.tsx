@@ -136,15 +136,15 @@ export const SurgeriesModule: React.FC<SurgeriesModuleProps> = ({
   return (
     <div className="space-y-6 pb-20 lg:pb-12">
       {/* Title Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
               Módulo 4
             </span>
             <span className="text-xs text-slate-500 font-mono">Scope QX Logística</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0B1320] mt-1">
+          <h1 className="text-lg sm:text-2xl font-bold text-[#0B1320] mt-1">
             Agenda y Envíos Quirúrgicos
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -152,24 +152,22 @@ export const SurgeriesModule: React.FC<SurgeriesModuleProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4 text-[#FFCC01]" />
-            <span>+ Agendar Cirugía / Entrega</span>
-          </button>
-        </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto"
+        >
+          <Plus className="w-4 h-4 text-[#FFCC01]" />
+          <span>Agendar Cirugía / Entrega</span>
+        </button>
       </div>
 
-      {/* Calendar View Selector (Sin pestañas horizontales duplicadas) */}
-      <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
+      {/* Calendar View Selector */}
+      <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
         <span className="text-xs font-bold text-slate-700">Vista del Calendario Operativo:</span>
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl overflow-x-auto">
           <button
             onClick={() => setCalendarView('lista')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-none text-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               calendarView === 'lista'
                 ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
                 : 'text-slate-600 hover:text-black'
@@ -179,7 +177,7 @@ export const SurgeriesModule: React.FC<SurgeriesModuleProps> = ({
           </button>
           <button
             onClick={() => setCalendarView('semanal')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-none text-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               calendarView === 'semanal'
                 ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
                 : 'text-slate-600 hover:text-black'
@@ -189,7 +187,7 @@ export const SurgeriesModule: React.FC<SurgeriesModuleProps> = ({
           </button>
           <button
             onClick={() => setCalendarView('mensual')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-none text-center px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
               calendarView === 'mensual'
                 ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
                 : 'text-slate-600 hover:text-black'

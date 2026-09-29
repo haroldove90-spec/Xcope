@@ -163,15 +163,15 @@ export const PurchasesModule: React.FC<PurchasesModuleProps> = ({
   return (
     <div className="space-y-6 pb-20 lg:pb-12">
       {/* Title Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
               Módulo 3
             </span>
             <span className="text-xs text-slate-500 font-mono">Scope QX Abastecimiento</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-[#0B1320] mt-1">
+          <h1 className="text-lg sm:text-2xl font-bold text-[#0B1320] mt-1">
             Proveedores y Compras Quirúrgicas
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
@@ -179,21 +179,21 @@ export const PurchasesModule: React.FC<PurchasesModuleProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 w-full sm:w-auto shrink-0">
           <button
             onClick={() => setShowNewPOModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4 text-[#FFCC01]" />
-            <span>+ Cargar Compra / Factura</span>
+            <span>Cargar Compra / Factura</span>
           </button>
 
           <button
             onClick={() => setShowNewProviderModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer whitespace-nowrap"
+            className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-bold rounded-xl transition-all cursor-pointer whitespace-nowrap"
           >
             <Building className="w-4 h-4 text-[#0A2957]" />
-            <span>+ Nuevo Proveedor</span>
+            <span>Nuevo Proveedor</span>
           </button>
         </div>
       </div>
