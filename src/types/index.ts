@@ -129,6 +129,9 @@ export interface Provider {
   contactName: string;
   email: string;
   phone: string;
+  taxId?: string; // RFC o Tax ID
+  bankAccount?: string; // CLABE o Cuenta
+  estimatedDeliveryDays?: number; // Días de entrega
   origin: 'nacional' | 'importado';
   country: string;
   currency: 'MXN' | 'USD';

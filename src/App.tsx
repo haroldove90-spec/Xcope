@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Client, PayableAccount, Product, Provider, PurchaseOrder, Quote, ReceivablePayment, Role, SurgerySchedule } from './types';
+import { Client, PayableAccount, Product, Provider, PurchaseOrder, Quote, ReceivablePayment, SurgerySchedule } from './types';
 import {
   INITIAL_PRODUCTS,
   INITIAL_CLIENTS,
@@ -13,32 +13,26 @@ import {
   setStoredData,
 } from './data/mockData';
 
-import { RoleSelector } from './components/RoleSelector';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { BottomBar, ActiveTab } from './components/BottomBar';
+import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { InventoryModule } from './components/inventory/InventoryModule';
 import { ClientsModule } from './components/clients/ClientsModule';
 import { PurchasesModule } from './components/purchases/PurchasesModule';
 import { SurgeriesModule } from './components/surgeries/SurgeriesModule';
-import { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
 import { QuoteGeneratorModal } from './components/quotes/QuoteGeneratorModal';
 import { QuoteViewerModal } from './components/quotes/QuoteViewerModal';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
-import { AlertCircle, X, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { ShieldAlert, X, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
-  // Active role state: null opens the RoleSelector on initial start
-  const [activeRole, setActiveRole] = useState<Role | null>(() => {
-    return getStoredData<Role | null>('active_role', null);
-  });
-
-  // Active module tab
-  const [activeTab, setActiveTab] = useState<ActiveTab>('inventory');
+  // Monorol: Exclusively Admin role directly loaded on boot
+  // Default module: 'metrics' (Métricas y Balance as the main dashboard on open)
+  const [activeTab, setActiveTab] = useState<ActiveTab>('metrics');
 
   // Sidebar collapse toggle
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Core Data States (persisted in localStorage)
   const [products, setProducts] = useState<Product[]>(() =>
@@ -73,10 +67,6 @@ export default function App() {
   const [showAlertsModal, setShowAlertsModal] = useState(false);
 
   // Sync state to LocalStorage
-  useEffect(() => {
-    setStoredData('active_role', activeRole);
-  }, [activeRole]);
-
   useEffect(() => {
     setStoredData('products', products);
   }, [products]);
@@ -163,7 +153,6 @@ export default function App() {
       })
     );
 
-    // Also update client balance due
     const rec = receivables.find((r) => r.id === receivableId);
     if (rec) {
       setClients((prev) =>
@@ -183,7 +172,7 @@ export default function App() {
   // Handlers for Quotes
   const handleSaveQuote = (newQuote: Quote) => {
     setQuotes((prev) => [newQuote, ...prev]);
-    setViewingQuote(newQuote); // Immediately open preview to allow WhatsApp send or PDF print
+    setViewingQuote(newQuote);
   };
 
   const handleOpenNewQuote = (client?: Client) => {
@@ -195,7 +184,6 @@ export default function App() {
   const handleAddPurchaseOrder = (newPO: PurchaseOrder) => {
     setPurchaseOrders((prev) => [newPO, ...prev]);
 
-    // Also record account payable
     const newPayable: PayableAccount = {
       id: 'pay-' + Date.now(),
       providerId: newPO.providerId,
@@ -214,7 +202,6 @@ export default function App() {
     const po = purchaseOrders.find((p) => p.id === poId);
     if (!po || po.status === 'recibido') return;
 
-    // 1. Mark PO as received
     setPurchaseOrders((prev) =>
       prev.map((p) =>
         p.id === poId
@@ -223,7 +210,7 @@ export default function App() {
       )
     );
 
-    // 2. Automatically load items into catalog stock
+    // Automatically load items into catalog stock
     setProducts((prev) =>
       prev.map((prod) => {
         const itemReceived = po.items.find((it) => it.productId === prod.id || it.sku === prod.sku);
@@ -253,17 +240,6 @@ export default function App() {
     setSurgeries((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
   };
 
-  // If no role is selected, render the initial clean Role Selector:
-  // "Acceso por Roles en Inicio (Cuadrícula 2 Columnas Móvil / 4 Columnas Escritorio): Selector limpio con tarjetas independientes para cada rol. Sin header, sin descripciones, solo nombre del rol."
-  if (!activeRole) {
-    return (
-      <RoleSelector
-        activeRole={activeRole}
-        onSelectRole={(role) => setActiveRole(role)}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-[#0B1320]">
       {/* Offline Mode Indicator */}
@@ -271,26 +247,18 @@ export default function App() {
 
       {/* Cabecera Institucional Unificada */}
       <Header
-        activeRole={activeRole}
-        onLogout={() => setActiveRole(null)}
-        onToggleSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-        isSidebarOpen={isMobileSidebarOpen}
         unreadAlertsCount={totalAlertsCount}
         onOpenAlerts={() => setShowAlertsModal(true)}
       />
 
-      {/* Main Workspace Canvas: Sidebar + Dynamic Module */}
+      {/* Main Workspace Canvas: Sidebar in desktop fullscreen + Main Viewport */}
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
-        {/* Desktop Collapsible Sidebar */}
+        {/* Desktop Sidebar (fullscreen access to all 5 modules) */}
         <Sidebar
           activeTab={activeTab}
-          onTabChange={(tab) => {
-            setActiveTab(tab);
-            setIsMobileSidebarOpen(false);
-          }}
+          onTabChange={(tab) => setActiveTab(tab)}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          onLogout={() => setActiveRole(null)}
           alerts={{
             lowStockCount: lowStockProducts.length,
             expiringLotsCount: expiringLots.length,
@@ -300,69 +268,22 @@ export default function App() {
           onOpenQuickQuote={() => handleOpenNewQuote()}
         />
 
-        {/* Mobile slide-over drawer when menu button is clicked */}
-        {isMobileSidebarOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
-            <div
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
-              onClick={() => setIsMobileSidebarOpen(false)}
-            />
-            <div className="relative w-72 max-w-xs bg-white h-full shadow-2xl flex flex-col p-4 animate-in slide-in-from-left duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <img
-                  src="https://appdesignproyectos.com/xcopelogo.png"
-                  alt="Xcope"
-                  className="h-8 w-auto object-contain"
-                  referrerPolicy="no-referrer"
-                />
-                <button
-                  onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-black"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mt-4 space-y-1.5 flex-1">
-                {[
-                  { id: 'inventory' as ActiveTab, label: 'Catálogo e Inventario' },
-                  { id: 'clients' as ActiveTab, label: 'Clientes y Cotizador' },
-                  { id: 'surgeries' as ActiveTab, label: 'Agenda y Cirugías' },
-                  { id: 'purchases' as ActiveTab, label: 'Compras y Proveedores' },
-                  { id: 'metrics' as ActiveTab, label: 'Métricas Ejecutivas' },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setIsMobileSidebarOpen(false);
-                    }}
-                    className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold transition-colors ${
-                      activeTab === item.id
-                        ? 'bg-[#0A2957] text-[#FFCC01]'
-                        : 'text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => {
-                  setActiveRole(null);
-                  setIsMobileSidebarOpen(false);
-                }}
-                className="mt-auto py-2.5 px-3 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl flex items-center justify-center gap-2 border border-red-200"
-              >
-                Cerrar Sesión / Cambiar Rol
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Main Content Viewport */}
         <main className="flex-1 p-3 sm:p-6 lg:p-8 min-w-0">
+          {/* Módulo 5: Métricas y Balance (Dashboard Principal) */}
+          {activeTab === 'metrics' && (
+            <ExecutiveDashboard
+              products={products}
+              clients={clients}
+              quotes={quotes}
+              receivables={receivables}
+              payables={payables}
+              surgeries={surgeries}
+              onNavigateToTab={(tab) => setActiveTab(tab as ActiveTab)}
+            />
+          )}
+
+          {/* Módulo 1: Productos e Inventario */}
           {activeTab === 'inventory' && (
             <InventoryModule
               products={products}
@@ -372,6 +293,7 @@ export default function App() {
             />
           )}
 
+          {/* Módulo 2: Clientes y Cotizaciones Rápidas */}
           {activeTab === 'clients' && (
             <ClientsModule
               clients={clients}
@@ -386,14 +308,7 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'surgeries' && (
-            <SurgeriesModule
-              surgeries={surgeries}
-              onAddSurgery={handleAddSurgery}
-              onUpdateSurgery={handleUpdateSurgery}
-            />
-          )}
-
+          {/* Módulo 3: Proveedores y Compras */}
           {activeTab === 'purchases' && (
             <PurchasesModule
               providers={providers}
@@ -406,19 +321,18 @@ export default function App() {
             />
           )}
 
-          {activeTab === 'metrics' && (
-            <ExecutiveDashboard
-              products={products}
-              clients={clients}
-              quotes={quotes}
-              receivables={receivables}
-              payables={payables}
+          {/* Módulo 4: Agenda y Envíos */}
+          {activeTab === 'surgeries' && (
+            <SurgeriesModule
+              surgeries={surgeries}
+              onAddSurgery={handleAddSurgery}
+              onUpdateSurgery={handleUpdateSurgery}
             />
           )}
         </main>
       </div>
 
-      {/* Navegación Móvil y Tablet (Bottom Bar) */}
+      {/* Navegación Móvil y Tablet (Bottom Bar con acceso directo a los 5 módulos) */}
       <BottomBar
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
@@ -448,7 +362,7 @@ export default function App() {
         onClose={() => setViewingQuote(null)}
       />
 
-      {/* Modal Alertas Operativas y de Quirófano */}
+      {/* Modal Alertas Operativas */}
       {showAlertsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320] max-h-[85vh] flex flex-col">
@@ -466,7 +380,6 @@ export default function App() {
             </div>
 
             <div className="flex-1 overflow-y-auto mt-4 space-y-4 text-xs">
-              {/* Cirugías de hoy */}
               {todaySurgeries.length > 0 && (
                 <div>
                   <span className="font-bold text-amber-800 uppercase tracking-wider block mb-1.5">
@@ -485,11 +398,10 @@ export default function App() {
                 </div>
               )}
 
-              {/* Stock mínimo */}
               {lowStockProducts.length > 0 && (
                 <div>
                   <span className="font-bold text-red-700 uppercase tracking-wider block mb-1.5">
-                    Stock Mínimo en Bodega ({lowStockProducts.length})
+                    Resurtido Urgente / Stock Mínimo ({lowStockProducts.length})
                   </span>
                   <div className="space-y-1.5">
                     {lowStockProducts.map((p) => (
@@ -507,7 +419,6 @@ export default function App() {
                 </div>
               )}
 
-              {/* Lotes por vencer */}
               {expiringLots.length > 0 && (
                 <div>
                   <span className="font-bold text-slate-700 uppercase tracking-wider block mb-1.5">

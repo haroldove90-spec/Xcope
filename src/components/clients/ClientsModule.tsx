@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Client, ClientType, Product, Quote, ReceivablePayment } from '../../types';
+import { Client, Product, Quote, ReceivablePayment } from '../../types';
 import {
   Users,
   Search,
   Plus,
   Phone,
   MessageCircle,
-  Mail,
   MapPin,
   CreditCard,
   History,
@@ -14,10 +13,9 @@ import {
   DollarSign,
   AlertCircle,
   CheckCircle2,
-  Calendar,
-  X,
   Stethoscope,
-  Building2,
+  Building,
+  X,
   ExternalLink,
 } from 'lucide-react';
 
@@ -45,58 +43,34 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
   onRecordPayment,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [activeSubTab, setActiveSubTab] = useState<'directory' | 'receivables' | 'quotes'>('directory');
   const [showAddClientModal, setShowAddClientModal] = useState(false);
+  const [clientHistoryTarget, setClientHistoryTarget] = useState<Client | null>(null);
+
+  // Quick Payment Modal
   const [paymentModalData, setPaymentModalData] = useState<{ id: string; clientName: string; balance: number } | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<number>(0);
 
-  // New Client Form state
+  // New Client Form
   const [newClient, setNewClient] = useState<Partial<Client>>({
     name: '',
-    contactPerson: '',
-    type: 'cirujano_particular',
-    specialty: 'Cirugía General y Laparoscópica',
+    specialty: 'Cirugía Laparoscópica',
+    preferredHospital: 'Hospital Ángeles Pedregal',
     phone: '',
-    whatsapp: '',
-    email: '',
     deliveryAddress: '',
     creditLimit: 50000,
     creditDays: 30,
-    balanceDue: 0,
-    frequentProducts: [],
   });
-
-  const getClientTypeLabel = (type: ClientType) => {
-    switch (type) {
-      case 'cirujano_particular':
-        return 'Cirujano Particular';
-      case 'hospital_clinica':
-        return 'Hospital / Clínica';
-      case 'clinica_corta_estancia':
-        return 'Clínica Corta Estancia';
-      case 'subdistribuidor':
-        return 'Subdistribuidor Mayorista';
-      default:
-        return 'Cliente';
-    }
-  };
 
   const filteredClients = clients.filter((c) => {
-    const matchesSearch =
+    return (
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.specialty && c.specialty.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (c.preferredHospital && c.preferredHospital.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesType = selectedType === 'all' || c.type === selectedType;
-    return matchesSearch && matchesType;
+      (c.preferredHospital && c.preferredHospital.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      c.phone.includes(searchTerm)
+    );
   });
 
-  const totalReceivables = receivables.reduce((sum, r) => sum + r.balance, 0);
-  const overdueReceivables = receivables
-    .filter((r) => r.status === 'vencido' || new Date(r.dueDate) < new Date())
-    .reduce((sum, r) => sum + r.balance, 0);
+  const totalOwedByClients = receivables.reduce((sum, r) => sum + r.balance, 0);
 
   const handleCreateClient = (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,18 +79,18 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
     const created: Client = {
       id: 'cli-' + Date.now(),
       name: newClient.name,
-      contactPerson: newClient.contactPerson || newClient.name,
-      type: (newClient.type as ClientType) || 'cirujano_particular',
+      contactPerson: newClient.name,
+      type: 'cirujano_particular',
       specialty: newClient.specialty || 'Cirugía General',
       phone: newClient.phone || '',
-      whatsapp: (newClient.whatsapp || newClient.phone || '').replace(/[^0-9]/g, ''),
-      email: newClient.email || '',
-      deliveryAddress: newClient.deliveryAddress || 'Área de Quirófano / Almacén',
-      preferredHospital: newClient.preferredHospital || 'Hospital CDMX',
+      whatsapp: (newClient.phone || '').replace(/[^0-9]/g, ''),
+      email: '',
+      deliveryAddress: newClient.deliveryAddress || 'Recepción en Quirófano',
+      preferredHospital: newClient.preferredHospital || 'Hospital Ángeles Pedregal',
       creditLimit: Number(newClient.creditLimit) || 50000,
       creditDays: Number(newClient.creditDays) || 30,
       balanceDue: 0,
-      frequentProducts: ['LMX-GRASP-533'],
+      frequentProducts: ['LMX-GRASP-533', 'ETH-BLT-1005'],
       createdAt: new Date().toISOString().split('T')[0],
     };
 
@@ -133,21 +107,21 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 lg:pb-12">
-      {/* Top Banner */}
+    <div className="space-y-5 pb-20 lg:pb-12">
+      {/* Title Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold uppercase tracking-wider text-[#0A2957] bg-blue-50 px-2 py-0.5 rounded-md">
-              Gestión Comercial y Médica
+              Módulo 2
             </span>
-            <span className="text-xs text-slate-500 font-mono">Scope QX CRM</span>
+            <span className="text-xs text-slate-500 font-mono">Scope QX Ventas</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[#0B1320] mt-1">
-            Directorio Quirúrgico, Cotizaciones y Cartera
+            Clientes y Cotizaciones Rápidas
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-            Registro clínico-comercial de cirujanos, clínicas, créditos autorizados y presupuestos con membrete.
+            Libreta de contactos médicos, WhatsApp directo, generador de cotizaciones PDF y cobranza.
           </p>
         </div>
 
@@ -157,7 +131,7 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
             className="flex items-center gap-2 px-4 py-2.5 bg-[#FFCC01] text-[#0A2957] hover:bg-[#ebd500] text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <FileText className="w-4 h-4 text-[#0A2957]" />
-            <span>+ Nueva Cotización</span>
+            <span>+ Cotizar en PDF</span>
           </button>
 
           <button
@@ -165,349 +139,253 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
             className="flex items-center gap-2 px-4 py-2.5 bg-[#0A2957] hover:bg-[#071c3c] text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition-all cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4 text-[#FFCC01]" />
-            <span>Nuevo Médico / Clínica</span>
+            <span>+ Nuevo Cirujano</span>
           </button>
         </div>
       </div>
 
-      {/* Metrics Mini-strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-          <span className="text-xs text-slate-500 block">Total Clientes Médicos</span>
-          <div className="text-2xl font-bold font-mono text-black mt-1">{clients.length}</div>
-          <span className="text-[11px] text-slate-500">Cirujanos y Hospitales activos</span>
+      {/* Debt Summary Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 block">Total en Cobranza Pendiente</span>
+            <div className="text-2xl font-bold font-mono text-red-600 mt-1 tabular-nums">
+              ${totalOwedByClients.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+            </div>
+          </div>
+          <div className="p-3 bg-red-50 text-red-700 rounded-xl">
+            <DollarSign className="w-6 h-6" />
+          </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-          <span className="text-xs text-slate-500 block">Cuentas por Cobrar (Saldos)</span>
-          <div className="text-2xl font-bold font-mono text-[#0A2957] mt-1 tabular-nums">
-            ${totalReceivables.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-slate-500 block">Cotizaciones Emitidas</span>
+            <div className="text-2xl font-bold font-mono text-[#0A2957] mt-1">
+              {quotes.length} documentos
+            </div>
           </div>
-          <span className="text-[11px] text-slate-500">Créditos a médicos y hospitales</span>
-        </div>
-
-        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-          <span className="text-xs text-slate-500 block">Cartera Vencida</span>
-          <div className="text-2xl font-bold font-mono text-red-600 mt-1 tabular-nums">
-            ${overdueReceivables.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+          <div className="p-3 bg-blue-50 text-[#0A2957] rounded-xl">
+            <FileText className="w-6 h-6" />
           </div>
-          <span className="text-[11px] text-red-600 font-semibold">Requiere seguimiento inmediato</span>
         </div>
       </div>
 
-      {/* Segmented SubTabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-        <button
-          onClick={() => setActiveSubTab('directory')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            activeSubTab === 'directory'
-              ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-          }`}
-        >
-          <Users className="w-4 h-4" />
-          <span>Directorio Médico ({clients.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('quotes')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            activeSubTab === 'quotes'
-              ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-          }`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>Cotizaciones Emitidas ({quotes.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('receivables')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            activeSubTab === 'receivables'
-              ? 'bg-[#0A2957] text-[#FFCC01] shadow-2xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
-          }`}
-        >
-          <CreditCard className="w-4 h-4" />
-          <span>Cuentas por Cobrar ({receivables.length})</span>
-        </button>
+      {/* Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+        <div className="relative w-full">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Buscar cirujano, especialidad, hospital de entrega o teléfono..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden text-[#0B1320]"
+          />
+        </div>
       </div>
 
-      {/* Subtab 1: Medical Directory */}
-      {activeSubTab === 'directory' && (
-        <div className="space-y-4">
-          {/* Search bar & Type filter */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs flex flex-col md:flex-row items-center gap-3">
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Buscar por médico, hospital, especialidad o contacto..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden text-[#0B1320]"
-              />
-            </div>
+      {/* Clients Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {filteredClients.map((client) => {
+          const cleanPhone = client.phone.replace(/[^0-9]/g, '');
+          const clientReceivable = receivables.find((r) => r.clientId === client.id && r.balance > 0);
+          const clientQuotes = quotes.filter((q) => q.clientId === client.id);
 
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1">
-              {[
-                { id: 'all', label: 'Todos' },
-                { id: 'cirujano_particular', label: 'Cirujanos' },
-                { id: 'hospital_clinica', label: 'Hospitales' },
-                { id: 'subdistribuidor', label: 'Distribuidores' },
-              ].map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedType(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap cursor-pointer ${
-                    selectedType === t.id
-                      ? 'bg-[#0A2957] text-[#FFCC01]'
-                      : 'bg-slate-100 text-slate-600 hover:text-black'
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Client Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredClients.map((client) => {
-              const clientQuotes = quotes.filter((q) => q.clientId === client.id);
-              const cleanWhatsApp = client.whatsapp.replace(/[^0-9]/g, '');
-
-              return (
-                <div
-                  key={client.id}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-4"
-                >
+          return (
+            <div
+              key={client.id}
+              className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between space-y-4"
+            >
+              <div>
+                <div className="flex items-start justify-between gap-3">
                   <div>
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-[#0A2957]">
-                          {getClientTypeLabel(client.type)}
-                        </span>
-                        <h3 className="text-base font-bold text-[#0B1320] mt-1.5">
-                          {client.name}
-                        </h3>
-                        {client.specialty && (
-                          <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
-                            <Stethoscope className="w-3.5 h-3.5 text-[#0A2957]" />
-                            <span>{client.specialty}</span>
-                          </div>
-                        )}
+                    <h3 className="text-base font-bold text-black">{client.name}</h3>
+                    {client.specialty && (
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
+                        <Stethoscope className="w-3.5 h-3.5 text-[#0A2957]" />
+                        <span>{client.specialty}</span>
                       </div>
-
-                      {client.balanceDue > 0 ? (
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-500 block">Saldo por Cobrar:</span>
-                          <span className="text-sm font-bold font-mono text-red-600 tabular-nums">
-                            ${client.balanceDue.toLocaleString('es-MX')}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                          Al corriente
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Delivery & Contact info */}
-                    <div className="mt-3 space-y-2 text-xs text-slate-600">
-                      <div className="flex items-start gap-2">
-                        <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{client.deliveryAddress}</span>
-                      </div>
-
-                      <div className="flex items-center gap-4 text-slate-700 pt-1">
-                        <span className="flex items-center gap-1">
-                          <Phone className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{client.phone}</span>
-                        </span>
-                        {client.email && (
-                          <span className="flex items-center gap-1 truncate">
-                            <Mail className="w-3.5 h-3.5 text-slate-500" />
-                            <span className="truncate">{client.email}</span>
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Historial clínico-comercial */}
-                    {client.frequentProducts && client.frequentProducts.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-slate-100">
-                        <span className="text-[11px] font-bold text-slate-500 block mb-1">
-                          Insumos frecuentes adquiridos:
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {client.frequentProducts.map((sku, i) => (
-                            <span key={i} className="text-[10px] font-mono font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-800">
-                              {sku}
-                            </span>
-                          ))}
-                        </div>
+                    )}
+                    {client.preferredHospital && (
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
+                        <Building className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{client.preferredHospital}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Actions Bar */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                    {/* Direct WhatsApp Button */}
-                    <a
-                      href={`https://wa.me/${cleanWhatsApp}?text=${encodeURIComponent(
-                        `Hola ${client.name}, le saluda el equipo quirúrgico de Xcope (Scope QX / Laparoscopic MX). ¿En qué podemos apoyarle con su instrumental y consumibles médicos?`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition-colors"
-                    >
-                      <MessageCircle className="w-4 h-4 text-emerald-600" />
-                      <span>WhatsApp Directo</span>
-                    </a>
-
-                    {/* Quick Quote to this Client */}
-                    <button
-                      onClick={() => onOpenNewQuote(client)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A2957] hover:bg-[#071c3c] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                    >
-                      <FileText className="w-3.5 h-3.5 text-[#FFCC01]" />
-                      <span>Cotizar</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Subtab 2: Quotes List */}
-      {activeSubTab === 'quotes' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700">Cotizaciones Formales Scope QX</span>
-            <button
-              onClick={() => onOpenNewQuote()}
-              className="text-xs font-bold text-[#0A2957] hover:underline"
-            >
-              + Nueva Cotización
-            </button>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {quotes.map((q) => (
-              <div key={q.id} className="p-4 hover:bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-[#0A2957] bg-slate-100 px-2 py-0.5 rounded">
-                      {q.folio}
-                    </span>
-                    <span className="text-slate-400">·</span>
-                    <span className="font-semibold text-black">{q.clientName}</span>
-                    <span className="text-slate-400">·</span>
-                    <span className="text-slate-500 font-mono">Emitida: {q.createdAt}</span>
-                  </div>
-                  <p className="text-slate-600 mt-1 line-clamp-1">{q.clientAddress}</p>
-                  <div className="flex items-center gap-2 mt-1 text-slate-500">
-                    <span>{q.items.length} partidas quirúrgicas</span>
-                    <span>·</span>
-                    <span>Vigente hasta: {q.validUntil}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 shrink-0">
-                  <div className="text-right">
-                    <div className="text-sm font-bold font-mono text-black tabular-nums">
-                      ${q.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                  {client.balanceDue > 0 ? (
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-500 block uppercase font-bold">Saldo Pendiente:</span>
+                      <span className="text-sm font-bold font-mono text-red-600 tabular-nums">
+                        ${client.balanceDue.toLocaleString('es-MX')}
+                      </span>
                     </div>
-                    <span className="text-[10px] uppercase font-bold text-emerald-700">
-                      {q.status}
+                  ) : (
+                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      Sin deuda
                     </span>
-                  </div>
+                  )}
+                </div>
 
+                {/* Delivery and Phone */}
+                <div className="mt-3 space-y-1.5 text-xs text-slate-600">
+                  <div className="flex items-start gap-1.5">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <span className="line-clamp-2">{client.deliveryAddress}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono text-slate-800 pt-0.5">
+                    <Phone className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{client.phone}</span>
+                  </div>
+                </div>
+
+                {/* Historial rápido de compras */}
+                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500">
+                    {clientQuotes.length} cotizaciones generadas
+                  </span>
                   <button
-                    onClick={() => onViewQuote(q)}
-                    className="px-3 py-1.5 bg-[#0A2957] text-[#FFCC01] hover:bg-[#071c3c] font-bold rounded-xl transition-colors cursor-pointer"
+                    onClick={() => setClientHistoryTarget(client)}
+                    className="text-[#0A2957] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    Ver / Enviar PDF
+                    <History className="w-3.5 h-3.5" />
+                    <span>Ver Historial de Compras</span>
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Subtab 3: Cuentas por Cobrar (Créditos a médicos/hospitales) */}
-      {activeSubTab === 'receivables' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700">Libro de Cobranza y Créditos Quirúrgicos</span>
-            <span className="text-xs text-slate-500">Términos de 15, 30 y 45 días</span>
-          </div>
+              {/* Action Buttons: WhatsApp Directo + Generador de Cotizaciones PDF */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <a
+                  href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(
+                    `Estimado(a) ${client.name}, le saluda el equipo quirúrgico de Xcope (Scope QX / Laparoscopic MX). ¿En qué podemos apoyarle hoy con su instrumental o cirugía programada?`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>WhatsApp Directo</span>
+                </a>
 
-          <div className="divide-y divide-slate-100">
-            {receivables.map((rec) => {
-              const isOverdue = rec.status === 'vencido' || new Date(rec.dueDate) < new Date();
-
-              return (
-                <div key={rec.id} className="p-4 hover:bg-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-black text-sm">{rec.clientName}</span>
-                      {isOverdue && (
-                        <span className="text-[10px] font-bold text-red-700 bg-red-100 px-2 py-0.5 rounded">
-                          Vencido
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-slate-600 mt-0.5 font-medium">{rec.concept}</p>
-                    <div className="flex items-center gap-3 text-slate-500 mt-1">
-                      <span>Vencimiento: <strong className="font-mono text-black">{rec.dueDate}</strong></span>
-                      {rec.notes && <span>· {rec.notes}</span>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-500 block">Saldo Pendiente:</span>
-                      <div className="text-sm sm:text-base font-bold font-mono text-red-600 tabular-nums">
-                        ${rec.balance.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-                      </div>
-                      <span className="text-[10px] text-slate-500">
-                        Total Facturado: ${rec.totalAmount.toLocaleString('es-MX')}
-                      </span>
-                    </div>
-
+                <div className="flex items-center gap-2">
+                  {clientReceivable && (
                     <button
                       onClick={() => {
-                        setPaymentModalData({ id: rec.id, clientName: rec.clientName, balance: rec.balance });
-                        setPaymentAmount(rec.balance);
+                        setPaymentModalData({
+                          id: clientReceivable.id,
+                          clientName: client.name,
+                          balance: clientReceivable.balance,
+                        });
+                        setPaymentAmount(clientReceivable.balance);
                       }}
-                      className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors cursor-pointer whitespace-nowrap"
+                      className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-colors cursor-pointer"
                     >
-                      Registrar Abono
+                      Abono
                     </button>
-                  </div>
+                  )}
+
+                  <button
+                    onClick={() => onOpenNewQuote(client)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-[#0A2957] hover:bg-[#071c3c] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <FileText className="w-4 h-4 text-[#FFCC01]" />
+                    <span>Cotizar PDF</span>
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Historial de Compras Modal */}
+      {clientHistoryTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320] max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-base font-bold text-[#0A2957]">Historial de Compras y Cotizaciones</h3>
+                <p className="text-xs text-slate-600 font-semibold">{clientHistoryTarget.name}</p>
+              </div>
+              <button
+                onClick={() => setClientHistoryTarget(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-black"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto mt-4 space-y-3 text-xs">
+              <div>
+                <span className="font-bold text-slate-700 block mb-1">Insumos Comprados Habitualmente:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {clientHistoryTarget.frequentProducts.map((sku, i) => {
+                    const prod = products.find((p) => p.sku === sku);
+                    return (
+                      <span key={i} className="px-2.5 py-1 bg-slate-100 rounded-lg text-slate-800 font-mono font-bold">
+                        {sku} {prod ? `· ${prod.name}` : ''}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <span className="font-bold text-slate-700 block mb-1">Presupuestos Emitidos a este Médico:</span>
+                {quotes.filter((q) => q.clientId === clientHistoryTarget.id).length === 0 ? (
+                  <p className="text-slate-400 italic">No hay cotizaciones registradas para este doctor.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {quotes
+                      .filter((q) => q.clientId === clientHistoryTarget.id)
+                      .map((q) => (
+                        <div key={q.id} className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                          <div>
+                            <span className="font-mono font-bold text-[#0A2957]">{q.folio}</span>
+                            <span className="text-slate-500 ml-2">({q.createdAt})</span>
+                            <div className="text-[11px] text-slate-600 mt-0.5">{q.items.length} partidas</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-black">${q.total.toLocaleString('es-MX')}</span>
+                            <button
+                              onClick={() => {
+                                onViewQuote(q);
+                                setClientHistoryTarget(null);
+                              }}
+                              className="px-2 py-1 bg-[#0A2957] text-[#FFCC01] font-bold rounded-lg text-[10px]"
+                            >
+                              Ver PDF
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setClientHistoryTarget(null)}
+              className="mt-4 w-full py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-200"
+            >
+              Cerrar Historial
+            </button>
           </div>
         </div>
       )}
 
-      {/* Modal Registrar Abono / Pago */}
+      {/* Modal Registrar Abono */}
       {paymentModalData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="text-base font-bold text-[#0A2957]">Registrar Cobro / Abono</h3>
               <button
                 onClick={() => setPaymentModalData(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100"
+                className="p-1 rounded-lg text-slate-400 hover:text-black"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -515,22 +393,22 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
 
             <form onSubmit={handleConfirmPayment} className="mt-4 space-y-4 text-xs">
               <div className="p-3 bg-slate-50 rounded-xl space-y-1">
-                <span className="text-slate-500 block">Cliente:</span>
+                <span className="text-slate-500 block">Médico / Hospital:</span>
                 <span className="font-bold text-black block">{paymentModalData.clientName}</span>
                 <span className="text-slate-600 block mt-1">
-                  Saldo pendiente actual: <strong className="font-mono text-red-600">${paymentModalData.balance.toLocaleString('es-MX')} MXN</strong>
+                  Saldo pendiente: <strong className="font-mono text-red-600">${paymentModalData.balance.toLocaleString('es-MX')} MXN</strong>
                 </span>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Monto del Abono / Pago ($ MXN)</label>
+                <label className="block font-bold text-slate-700 mb-1">Monto del Pago Recibido ($ MXN)</label>
                 <input
                   type="number"
                   step="0.01"
                   max={paymentModalData.balance}
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-base font-bold"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-base font-bold text-center"
                   required
                 />
               </div>
@@ -547,7 +425,7 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
                   type="submit"
                   className="px-5 py-2 font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs"
                 >
-                  Confirmar Cobro
+                  Registrar Cobro
                 </button>
               </div>
             </form>
@@ -555,15 +433,15 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
         </div>
       )}
 
-      {/* Modal Agregar Nuevo Cliente Médico */}
+      {/* Modal Registrar Nuevo Médico */}
       {showAddClientModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 text-[#0B1320] my-8 animate-in fade-in duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-[#0A2957]">Registrar Médico / Clínica</h3>
+              <h3 className="text-base font-bold text-[#0A2957]">Alta de Médico o Clínica</h3>
               <button
                 onClick={() => setShowAddClientModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-black hover:bg-slate-100"
+                className="p-1 rounded-lg text-slate-400 hover:text-black"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -571,11 +449,11 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
 
             <form onSubmit={handleCreateClient} className="mt-4 space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Nombre Completo del Doctor / Institución</label>
+                <label className="block font-bold text-slate-700 mb-1">Nombre Completo del Cirujano</label>
                 <input
                   type="text"
                   required
-                  placeholder="ej. Dr. Juan Manuel Cárdenas / Clínica Santa Mónica"
+                  placeholder="ej. Dr. Eduardo Salcedo"
                   value={newClient.name || ''}
                   onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
@@ -584,91 +462,51 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Tipo de Cliente</label>
-                  <select
-                    value={newClient.type || 'cirujano_particular'}
-                    onChange={(e) => setNewClient({ ...newClient, type: e.target.value as ClientType })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
-                  >
-                    <option value="cirujano_particular">Cirujano Particular</option>
-                    <option value="hospital_clinica">Hospital / Clínica</option>
-                    <option value="clinica_corta_estancia">Clínica de Corta Estancia</option>
-                    <option value="subdistribuidor">Subdistribuidor</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Especialidad Médica</label>
+                  <label className="block font-bold text-slate-700 mb-1">Especialidad</label>
                   <input
                     type="text"
-                    placeholder="ej. Cirugía Bariátrica, Ginecología..."
+                    placeholder="Cirugía Bariátrica / Ginecolaparoscopía"
                     value={newClient.specialty || ''}
                     onChange={(e) => setNewClient({ ...newClient, specialty: e.target.value })}
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Teléfono Móvil / WhatsApp</label>
+                  <label className="block font-bold text-slate-700 mb-1">Hospital / Clínica Habitual</label>
                   <input
                     type="text"
-                    required
-                    placeholder="+52 55 1234 5678"
-                    value={newClient.phone || ''}
-                    onChange={(e) => setNewClient({ ...newClient, phone: e.target.value, whatsapp: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Correo Electrónico</label>
-                  <input
-                    type="email"
-                    placeholder="doctor@hospital.com"
-                    value={newClient.email || ''}
-                    onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
+                    placeholder="Hospital Ángeles Pedregal"
+                    value={newClient.preferredHospital || ''}
+                    onChange={(e) => setNewClient({ ...newClient, preferredHospital: e.target.value })}
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                   />
                 </div>
               </div>
 
               <div>
+                <label className="block font-bold text-slate-700 mb-1">Teléfono Móvil / WhatsApp (sin guiones)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="+52 55 1234 5678"
+                  value={newClient.phone || ''}
+                  onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono"
+                />
+              </div>
+
+              <div>
                 <label className="block font-bold text-slate-700 mb-1">Dirección de Entrega / Quirófano CEyE</label>
                 <textarea
                   rows={2}
-                  required
-                  placeholder="Hospital Ángeles, Quirófano 4, Torre Quirúrgica piso 2..."
+                  placeholder="Hospital Ángeles Pedregal, Quirófano 4, Torre de Especialidades..."
                   value={newClient.deliveryAddress || ''}
                   onChange={(e) => setNewClient({ ...newClient, deliveryAddress: e.target.value })}
                   className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Límite de Crédito ($ MXN)</label>
-                  <input
-                    type="number"
-                    value={newClient.creditLimit || 50000}
-                    onChange={(e) => setNewClient({ ...newClient, creditLimit: parseFloat(e.target.value) || 0 })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Días de Crédito Autorizados</label>
-                  <select
-                    value={newClient.creditDays || 30}
-                    onChange={(e) => setNewClient({ ...newClient, creditDays: parseInt(e.target.value) || 30 })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
-                  >
-                    <option value={15}>15 días</option>
-                    <option value={30}>30 días</option>
-                    <option value={45}>45 días</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setShowAddClientModal(false)}
@@ -680,7 +518,7 @@ export const ClientsModule: React.FC<ClientsModuleProps> = ({
                   type="submit"
                   className="px-5 py-2 font-bold text-white bg-[#0A2957] hover:bg-[#071c3c] rounded-xl shadow-xs"
                 >
-                  Guardar Médico
+                  Guardar Contacto
                 </button>
               </div>
             </form>

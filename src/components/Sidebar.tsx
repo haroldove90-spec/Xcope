@@ -1,18 +1,15 @@
 import React from 'react';
 import { ActiveTab } from './BottomBar';
 import {
+  BarChart3,
   Package,
   Users,
-  Calendar,
   Truck,
-  BarChart3,
+  Calendar,
   FileText,
-  AlertTriangle,
   ChevronLeft,
   ChevronRight,
-  LogOut,
-  Building,
-  HeartPulse,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -20,7 +17,6 @@ interface SidebarProps {
   onTabChange: (tab: ActiveTab) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
-  onLogout: () => void;
   alerts: {
     lowStockCount: number;
     expiringLotsCount: number;
@@ -35,45 +31,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   isCollapsed,
   onToggleCollapse,
-  onLogout,
   alerts,
   onOpenQuickQuote,
 }) => {
   const menuItems = [
     {
+      id: 'metrics' as ActiveTab,
+      label: 'Métricas y Balance',
+      sublabel: 'Ingresos, Deudas y Top 10',
+      icon: BarChart3,
+      alertCount: 0,
+    },
+    {
       id: 'inventory' as ActiveTab,
-      label: 'Catálogo e Inventario',
-      sublabel: 'Laparoscopia, Lotes y Series',
+      label: 'Productos e Inventario',
+      sublabel: 'Catálogo, Lotes y Existencias',
       icon: Package,
       alertCount: alerts.lowStockCount + alerts.expiringLotsCount,
     },
     {
       id: 'clients' as ActiveTab,
-      label: 'Clientes y Cotizador',
-      sublabel: 'Directorio, WhatsApp y Crédito',
+      label: 'Clientes y Cotizaciones',
+      sublabel: 'Contactos, PDF y Cobranza',
       icon: Users,
       alertCount: alerts.pendingQuotesCount,
     },
     {
-      id: 'surgeries' as ActiveTab,
-      label: 'Agenda y Cirugías',
-      sublabel: 'Programación y Logística',
-      icon: Calendar,
-      alertCount: alerts.pendingSurgeriesCount,
-    },
-    {
       id: 'purchases' as ActiveTab,
-      label: 'Compras y Proveedores',
-      sublabel: 'Órdenes, Aduana y Pagos',
+      label: 'Proveedores y Compras',
+      sublabel: 'Facturas, Gastos y Costos',
       icon: Truck,
       alertCount: 0,
     },
     {
-      id: 'metrics' as ActiveTab,
-      label: 'Métricas Ejecutivas',
-      sublabel: 'Ventas, Top Productos y Cartera',
-      icon: BarChart3,
-      alertCount: 0,
+      id: 'surgeries' as ActiveTab,
+      label: 'Agenda y Envíos',
+      sublabel: 'Cirugías, Guías y Despacho',
+      icon: Calendar,
+      alertCount: alerts.pendingSurgeriesCount,
     },
   ];
 
@@ -88,24 +83,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {!isCollapsed ? (
           <button
             onClick={onOpenQuickQuote}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0A2957] hover:bg-[#071c3c] text-white font-bold text-sm shadow-sm transition-all cursor-pointer group"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0A2957] hover:bg-[#071c3c] text-white font-bold text-sm shadow-sm transition-all cursor-pointer group"
           >
             <FileText className="w-4 h-4 text-[#FFCC01] group-hover:scale-110 transition-transform" />
-            <span>+ Nueva Cotización</span>
+            <span>+ Nueva Cotización PDF</span>
           </button>
         ) : (
           <button
             onClick={onOpenQuickQuote}
             title="Nueva Cotización"
-            className="w-full flex items-center justify-center p-2.5 rounded-xl bg-[#0A2957] hover:bg-[#071c3c] text-[#FFCC01] transition-all cursor-pointer"
+            className="w-full flex items-center justify-center p-3 rounded-xl bg-[#0A2957] hover:bg-[#071c3c] text-[#FFCC01] transition-all cursor-pointer"
           >
             <FileText className="w-5 h-5" />
           </button>
         )}
       </div>
 
-      {/* Main Navigation List */}
-      <div className="flex-1 py-4 px-3 space-y-1.5 overflow-y-auto">
+      {/* Main Navigation List - 5 Monorol Modules */}
+      <div className="flex-1 py-4 px-3 space-y-2 overflow-y-auto">
+        <div className="px-2 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          {!isCollapsed && 'Módulos Operativos'}
+        </div>
+
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -157,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               )}
 
-              {/* Tooltip badge for collapsed mode */}
+              {/* Tooltip dot for collapsed mode */}
               {isCollapsed && item.alertCount > 0 && (
                 <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-600 rounded-full" />
               )}
@@ -166,38 +165,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Hospital Consignment / Quick Status Card */}
-      {!isCollapsed && (
-        <div className="p-3 mx-3 mb-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 space-y-1.5">
-          <div className="flex items-center gap-1.5 font-bold text-[#0A2957]">
-            <HeartPulse className="w-4 h-4 text-[#0A2957]" />
-            <span>Operaciones en Quirófano</span>
+      {/* Collapse button */}
+      <div className="p-3 border-t border-slate-100 flex items-center justify-between">
+        {!isCollapsed && (
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+            <ShieldCheck className="w-4 h-4 text-[#0A2957]" />
+            <span>Xcope Admin Suite</span>
           </div>
-          <p className="text-[11px] text-slate-600">
-            Material en consignación y entregas activas en Hospital Ángeles y ABC.
-          </p>
-        </div>
-      )}
-
-      {/* Footer controls: Collapse button + Logout */}
-      <div className="p-3 border-t border-slate-100 flex items-center justify-between gap-2">
+        )}
         <button
           onClick={onToggleCollapse}
           title={isCollapsed ? 'Expandir panel' : 'Colapsar panel'}
-          className="p-2 rounded-xl text-slate-500 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer"
+          className="p-2 rounded-xl text-slate-500 hover:text-black hover:bg-slate-100 transition-colors cursor-pointer ml-auto"
         >
           {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
-
-        {!isCollapsed && (
-          <button
-            onClick={onLogout}
-            className="flex-1 flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold text-slate-700 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Cerrar sesión</span>
-          </button>
-        )}
       </div>
     </aside>
   );

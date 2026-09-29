@@ -1,7 +1,7 @@
 import React from 'react';
-import { Package, Users, Calendar, Truck, BarChart3 } from 'lucide-react';
+import { BarChart3, Package, Users, Truck, Calendar } from 'lucide-react';
 
-export type ActiveTab = 'inventory' | 'clients' | 'surgeries' | 'purchases' | 'metrics';
+export type ActiveTab = 'metrics' | 'inventory' | 'clients' | 'purchases' | 'surgeries';
 
 interface BottomBarProps {
   activeTab: ActiveTab;
@@ -20,8 +20,14 @@ export const BottomBar: React.FC<BottomBarProps> = ({
 }) => {
   const navItems = [
     {
+      id: 'metrics' as ActiveTab,
+      label: 'Balance',
+      icon: BarChart3,
+      badge: 0,
+    },
+    {
       id: 'inventory' as ActiveTab,
-      label: 'Catálogo',
+      label: 'Inventario',
       icon: Package,
       badge: alertsCount.inventory,
     },
@@ -32,22 +38,16 @@ export const BottomBar: React.FC<BottomBarProps> = ({
       badge: alertsCount.clients,
     },
     {
-      id: 'surgeries' as ActiveTab,
-      label: 'Cirugías',
-      icon: Calendar,
-      badge: alertsCount.surgeries,
-    },
-    {
       id: 'purchases' as ActiveTab,
       label: 'Compras',
       icon: Truck,
       badge: 0,
     },
     {
-      id: 'metrics' as ActiveTab,
-      label: 'Métricas',
-      icon: BarChart3,
-      badge: 0,
+      id: 'surgeries' as ActiveTab,
+      label: 'Agenda',
+      icon: Calendar,
+      badge: alertsCount.surgeries,
     },
   ];
 
@@ -68,7 +68,7 @@ export const BottomBar: React.FC<BottomBarProps> = ({
                   : 'text-slate-600 hover:text-[#0A2957]'
               }`}
             >
-              {/* Active indicator bar */}
+              {/* Active top line */}
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#0A2957] rounded-b-md" />
               )}
@@ -78,7 +78,7 @@ export const BottomBar: React.FC<BottomBarProps> = ({
                   className={`w-5 h-5 transition-transform ${
                     isActive ? 'scale-110 text-[#0A2957]' : 'text-slate-500'
                   }`}
-                  strokeWidth={isActive ? 2.3 : 1.8}
+                  strokeWidth={isActive ? 2.4 : 1.8}
                 />
                 {item.badge > 0 && (
                   <span className="absolute -top-1 -right-2 px-1 min-w-[14px] h-3.5 bg-red-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -88,8 +88,8 @@ export const BottomBar: React.FC<BottomBarProps> = ({
               </div>
 
               <span
-                className={`text-[10px] font-semibold tracking-tight truncate max-w-full px-1 ${
-                  isActive ? 'text-[#0A2957] font-bold' : 'text-slate-600'
+                className={`text-[10px] tracking-tight truncate max-w-full px-1 ${
+                  isActive ? 'text-[#0A2957] font-bold' : 'text-slate-600 font-medium'
                 }`}
               >
                 {item.label}
