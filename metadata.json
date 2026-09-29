@@ -1,0 +1,6 @@
+{
+  "name": "Xcope",
+  "description": "Plataforma integral de gestión quirúrgica, inventario médico, cotizaciones y logística para instrumental laparoscópico y consumibles hospitalarios.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --brand-navy: #0A2957;
+    --brand-gold: #FFCC01;
+    --brand-text: #0B1320;
+    --brand-navy-dark: #071c3c;
+    --brand-navy-light: #123e80;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #0B1320;
+    background-color: #F8FAFC;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Print layout for formal quotes */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+  }
+}
